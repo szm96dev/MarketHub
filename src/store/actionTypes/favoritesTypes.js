@@ -1,0 +1,6 @@
+// Favorites Action Types
+export const FAVORITES_ADD = 'FAVORITES_ADD';
+export const FAVORITES_REMOVE = 'FAVORITES_REMOVE';
+export const FAVORITES_TOGGLE = 'FAVORITES_TOGGLE';
+export const FAVORITES_CLEAR = 'FAVORITES_CLEAR';
+
