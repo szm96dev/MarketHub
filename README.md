@@ -320,7 +320,7 @@ This project is licensed under the MIT License.
 **SiKaNDaR ZuBaIr MaYo**
 - GitHub: [@szm96dev](https://github.com/szm96dev)
 - LinkedIn: [Sikandar Zubair Mayo](https://www.linkedin.com/in/szm96dev/)
-- Portfolio: [Sikandar Portfolio](https://github.com/szm96dev/MarketHub)
+- Portfolio: [Sikandar Portfolio](https://szm96dev.github.io/)
 
 ## ⭐ Show Your Support
 
