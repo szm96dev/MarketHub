@@ -1,5 +1,6 @@
 import React, { memo, useMemo } from 'react';
 import { ClearOutlined, AddOutlined, RemoveOutlined } from '../../icons';
+import SmartImage from '../common/SmartImage';
 
 const CartItemComponent = ({
   item,
@@ -17,10 +18,12 @@ const CartItemComponent = ({
       <div className="p-6">
         <div className="flex items-center space-x-4">
           <div className="flex-shrink-0">
-            <img
+            <SmartImage
               src={item.image}
               alt={item.productName}
-              className="w-20 h-20 object-cover rounded-xl"
+              className="h-20 w-20 rounded-xl"
+              imgClassName="h-full w-full object-cover"
+              fallbackLabel="No image"
             />
           </div>
           

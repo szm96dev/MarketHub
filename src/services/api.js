@@ -1,4 +1,8 @@
 // Legacy API endpoints - use individual services instead
+import { authService } from './authService';
+import { productService } from './productService';
+import { userService } from './userService';
+import { cartService } from './cartService';
 
 // Re-export services for backward compatibility
 export const authAPI = {

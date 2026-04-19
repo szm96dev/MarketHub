@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
+import SmartImage from '../common/SmartImage';
 
 const HeroCarousel = ({ slides = [] }) => {
   const [currentSlide, setCurrentSlide] = useState(0);
@@ -44,9 +45,12 @@ const HeroCarousel = ({ slides = [] }) => {
                 : 'opacity-0 translate-x-full'
             }`}
           >
-            <div
-              className="w-full h-full bg-cover bg-center bg-no-repeat"
-              style={{ backgroundImage: `url(${slide.image})` }}
+            <SmartImage
+              src={slide.image}
+              alt={slide.title}
+              className="h-full w-full"
+              imgClassName="h-full w-full object-cover"
+              fallbackLabel="Hero image unavailable"
             />
             {/* Dynamic gradient overlay based on slide */}
             <div className={`absolute inset-0 bg-gradient-to-r ${slide.gradient || 'from-primary-600 to-secondary-600'} opacity-20`}></div>

@@ -1,94 +1,216 @@
-import React, { useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
 import PageContainer from '../components/common/PageContainer';
 import { showToast } from '../utils/toast';
-import Button from '../components/common/Button';
 import { clearCart } from '../store/actions/cartActions';
+import localData from '../utils/localData';
+import { initialValues, shippingDetailsSchema } from '../schemas';
+import CheckoutHeader from '../components/Checkout/CheckoutHeader';
+import CheckoutSteps from '../components/Checkout/CheckoutSteps';
+import CheckoutSuccess from '../components/Checkout/CheckoutSuccess';
+import ShippingStep from '../components/Checkout/ShippingStep';
+import PaymentStep from '../components/Checkout/PaymentStep';
+import ReviewStep from '../components/Checkout/ReviewStep';
 
 const Checkout = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
+  const { user } = useSelector((state) => state.auth);
   const [checkoutComplete, setCheckoutComplete] = useState(false);
+  const [currentStep, setCurrentStep] = useState(1);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [savedAddresses, setSavedAddresses] = useState([]);
+  const [latestOrder, setLatestOrder] = useState(null);
+  const [shippingErrors, setShippingErrors] = useState({});
+  const [shippingTouched, setShippingTouched] = useState({});
+  const [paymentMethod, setPaymentMethod] = useState('Card');
   const { items, total, itemCount } = useSelector((state) => state.cart);
+  const userId = user?.id || 'guest';
   const tax = useMemo(() => total * 0.08, [total]);
-  const grandTotal = useMemo(() => total + tax, [total, tax]);
+  const shippingFee = useMemo(() => (total > 75 ? 0 : 9.99), [total]);
+  const discount = useMemo(() => (paymentMethod === 'PayPal' ? 5 : 0), [paymentMethod]);
+  const grandTotal = useMemo(() => Math.max(0, total + tax + shippingFee - discount), [discount, shippingFee, tax, total]);
+  const [shippingForm, setShippingForm] = useState({
+    ...initialValues.shipping,
+    fullName: user ? `${user?.name?.firstname || ''} ${user?.name?.lastname || ''}`.trim() : initialValues.shipping.fullName,
+    email: user?.email || initialValues.shipping.email,
+    phone: user?.phone || initialValues.shipping.phone,
+  });
+
+  useEffect(() => {
+    setSavedAddresses(localData.getSavedAddresses(userId));
+  }, [userId]);
+
+  const applySavedAddress = (address) => {
+    setShippingForm({
+      ...initialValues.shipping,
+      ...address,
+    });
+    setShippingErrors({});
+    setShippingTouched({});
+    setCurrentStep(2);
+  };
+
+  const validateShippingForm = useCallback((values = shippingForm) => {
+    try {
+      shippingDetailsSchema.validateSync(values, { abortEarly: false });
+      return {};
+    } catch (error) {
+      const nextErrors = {};
+      error.inner?.forEach((item) => {
+        if (item.path && !nextErrors[item.path]) {
+          nextErrors[item.path] = item.message;
+        }
+      });
+      return nextErrors;
+    }
+  }, [shippingForm]);
+
+  const handleShippingChange = (field, value) => {
+    setShippingForm((prev) => {
+      const nextValues = { ...prev, [field]: value };
+      setShippingErrors(validateShippingForm(nextValues));
+      return nextValues;
+    });
+  };
+
+  const handleShippingBlur = (field) => {
+    setShippingTouched((prev) => ({ ...prev, [field]: true }));
+    setShippingErrors(validateShippingForm());
+  };
+
+  const isShippingComplete = useMemo(() => (
+    Object.keys(validateShippingForm()).length === 0
+  ), [validateShippingForm]);
+
+  const continueToPayment = () => {
+    const nextErrors = validateShippingForm();
+    setShippingErrors(nextErrors);
+    setShippingTouched({
+      fullName: true,
+      email: true,
+      phone: true,
+      street: true,
+      apartment: true,
+      city: true,
+      state: true,
+      postalCode: true,
+      country: true,
+    });
+
+    if (Object.keys(nextErrors).length > 0) {
+      showToast.warning('Please fix the shipping form errors before continuing.');
+      return;
+    }
+
+    setCurrentStep(2);
+  };
 
   const handleProcessCheckout = () => {
-    // Simulate a successful checkout
+    if (items.length === 0) {
+      showToast.warning('Add items to cart before checking out.');
+      return;
+    }
+
+    const nextErrors = validateShippingForm();
+    setShippingErrors(nextErrors);
+
+    if (Object.keys(nextErrors).length > 0) {
+      showToast.warning('Please complete your shipping details first.');
+      return;
+    }
+
+    setIsSubmitting(true);
     setTimeout(() => {
+      const nextAddresses = localData.saveAddress(userId, shippingForm);
+      const order = {
+        items,
+        itemCount,
+        subtotal: total,
+        tax,
+        shippingFee,
+        discount,
+        total: grandTotal,
+        shippingAddress: shippingForm,
+        paymentMethod,
+      };
+
+      const nextOrders = localData.saveOrder(userId, order);
+      setSavedAddresses(nextAddresses);
+      setLatestOrder(nextOrders[0]);
       setCheckoutComplete(true);
+      setCurrentStep(3);
+      setIsSubmitting(false);
       showToast.success('Purchase successful! Thank you for your order.');
       dispatch(clearCart());
     }, 2000);
   };
 
-    return (
+  const checkoutSteps = [
+    { id: 1, label: 'Shipping' },
+    { id: 2, label: 'Payment' },
+    { id: 3, label: 'Review' },
+  ];
+
+  return (
     <PageContainer>
       <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        <h1 className="text-4xl font-bold text-text-primary dark:text-dark-text-primary mb-8 text-center">
-          {checkoutComplete ? 'Order Confirmed!' : 'Proceed to Checkout'}
-        </h1>
+        <CheckoutHeader checkoutComplete={checkoutComplete} />
 
         {checkoutComplete ? (
-          <div className="bg-bg-card dark:bg-dark-bg-card rounded-3xl shadow-2xl p-8 text-center">
-            <svg className="w-24 h-24 text-brand-primary mx-auto mb-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-            </svg>
-            <p className="text-xl text-text-secondary dark:text-dark-text-secondary mb-4">
-              Your order has been placed successfully.
-            </p>
-            <p className="text-text-tertiary dark:text-dark-text-tertiary mb-8">
-              You will receive an email confirmation shortly.
-            </p>
-              <Button onClick={() => navigate('/products')} variant="gradient">
-                Continue Shopping
-              </Button>
-          </div>
+          <CheckoutSuccess
+            latestOrder={latestOrder}
+            onContinueShopping={() => navigate('/products')}
+          />
         ) : (
           <div className="bg-bg-card dark:bg-dark-bg-card rounded-3xl shadow-2xl p-8">
-            <h2 className="text-2xl font-semibold text-text-primary dark:text-dark-text-primary mb-6">
-              Review Your Order
-            </h2>
+            <CheckoutSteps
+              steps={checkoutSteps}
+              currentStep={currentStep}
+              isShippingComplete={isShippingComplete}
+              onStepChange={setCurrentStep}
+            />
+
             <div className="space-y-6">
-              {/* Items */}
-              <div className="space-y-4">
-                {items.length === 0 ? (
-                  <p className="text-text-secondary dark:text-dark-text-secondary">Your cart is empty.</p>) : (
-                  items.map((item) => (
-                    <div key={item.productId} className="flex items-center justify-between">
-                      <div className="flex items-center gap-4">
-                        <img src={item.image} alt={item.productName} className="h-12 w-auto object-contain bg-white dark:bg-dark-bg-primary rounded" />
-                        <div>
-                          <p className="text-text-primary dark:text-dark-text-primary font-medium">{item.productName}</p>
-                          <p className="text-text-tertiary dark:text-dark-text-tertiary text-sm">Qty: {item.quantity}</p>
-                        </div>
-                      </div>
-                      <p className="text-text-primary dark:text-dark-text-primary font-semibold">${(item.price * item.quantity).toFixed(2)}</p>
-                    </div>
-                  ))
-                )}
-              </div>
+              {currentStep === 1 && (
+                <ShippingStep
+                  savedAddresses={savedAddresses}
+                  shippingForm={shippingForm}
+                  shippingTouched={shippingTouched}
+                  shippingErrors={shippingErrors}
+                  onApplySavedAddress={applySavedAddress}
+                  onShippingChange={handleShippingChange}
+                  onShippingBlur={handleShippingBlur}
+                  onContinue={continueToPayment}
+                />
+              )}
 
-              {/* Summary */}
-              <div className="border-t border-border-primary dark:border-dark-border-primary pt-4">
-                <div className="flex items-center justify-between mb-2 text-text-secondary dark:text-dark-text-secondary">
-                  <span>Subtotal ({itemCount} items)</span>
-                  <span>${total.toFixed(2)}</span>
-                </div>
-                <div className="flex items-center justify-between mb-2 text-text-secondary dark:text-dark-text-secondary">
-                  <span>Tax (8%)</span>
-                  <span>${tax.toFixed(2)}</span>
-                </div>
-                <div className="flex items-center justify-between text-lg font-bold text-text-primary dark:text-dark-text-primary">
-                  <span>Total</span>
-                  <span>${grandTotal.toFixed(2)}</span>
-                </div>
-              </div>
+              {currentStep === 2 && (
+                <PaymentStep
+                  paymentMethod={paymentMethod}
+                  onPaymentMethodChange={setPaymentMethod}
+                  onBack={() => setCurrentStep(1)}
+                  onContinue={() => setCurrentStep(3)}
+                />
+              )}
 
-              <Button onClick={handleProcessCheckout} variant="gradient" fullWidth>
-                Place Order
-              </Button>
+              {currentStep === 3 && (
+                <ReviewStep
+                  shippingForm={shippingForm}
+                  paymentMethod={paymentMethod}
+                  items={items}
+                  itemCount={itemCount}
+                  total={total}
+                  tax={tax}
+                  shippingFee={shippingFee}
+                  discount={discount}
+                  grandTotal={grandTotal}
+                  isSubmitting={isSubmitting}
+                  onBack={() => setCurrentStep(2)}
+                  onPlaceOrder={handleProcessCheckout}
+                />
+              )}
             </div>
           </div>
         )}

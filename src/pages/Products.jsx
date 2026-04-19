@@ -1,96 +1,157 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo, useRef } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchProducts, fetchCategories } from '../store/actions/productsActions';
 import ProductsSearch from '../components/Products/ProductsSearch';
 import ProductsFilters from '../components/Products/ProductsFilters';
 import ProductsGrid from '../components/Products/ProductsGrid';
+import ProductsHero from '../components/Products/ProductsHero';
+import ProductsResultsBar from '../components/Products/ProductsResultsBar';
+import ProductsPagination from '../components/Products/ProductsPagination';
 import LoadingSpinner from '../components/common/LoadingSpinner';
+import useDebouncedValue from '../hooks/useDebouncedValue';
+
+const DEFAULT_LIMIT = 12;
+const MAX_PRICE = 1000;
 
 const Products = () => {
-  const [searchParams] = useSearchParams();
+  const [searchParams, setSearchParams] = useSearchParams();
   const dispatch = useDispatch();
-  const { products, categories, loading } = useSelector((state) => state.products);
+  const { products, categories, loading, pagination } = useSelector((state) => state.products);
+
+  const initialSearch = searchParams.get('search') || '';
+  const initialCategory = searchParams.get('category') || '';
+  const initialSort = searchParams.get('sort') || 'name';
+  const initialPage = Math.max(1, Number(searchParams.get('page')) || 1);
+  const initialMinPrice = Math.max(0, Number(searchParams.get('minPrice')) || 0);
+  const initialMaxPrice = Math.min(MAX_PRICE, Number(searchParams.get('maxPrice')) || MAX_PRICE);
   
-  const [searchTerm, setSearchTerm] = useState(searchParams.get('search') || '');
-  const [selectedCategory, setSelectedCategory] = useState(searchParams.get('category') || '');
-  const [sortBy, setSortBy] = useState('name');
-  const [priceRange, setPriceRange] = useState([0, 1000]);
+  const [searchTerm, setSearchTerm] = useState(initialSearch);
+  const [selectedCategory, setSelectedCategory] = useState(initialCategory);
+  const [sortBy, setSortBy] = useState(initialSort);
+  const [priceRange, setPriceRange] = useState([initialMinPrice, Math.max(initialMinPrice, initialMaxPrice)]);
+  const [currentPage, setCurrentPage] = useState(initialPage);
+  const skipFirstDebouncedFetch = useRef(true);
+  const initialFilters = useRef({
+    search: initialSearch,
+    category: initialCategory,
+    sortBy: initialSort,
+    minPrice: initialMinPrice,
+    maxPrice: Math.max(initialMinPrice, initialMaxPrice),
+    page: initialPage,
+    limit: DEFAULT_LIMIT,
+  });
+
+  const filters = useMemo(() => ({
+    search: searchTerm,
+    category: selectedCategory,
+    sortBy,
+    minPrice: priceRange[0],
+    maxPrice: priceRange[1],
+    page: currentPage,
+    limit: DEFAULT_LIMIT,
+  }), [currentPage, priceRange, searchTerm, selectedCategory, sortBy]);
+
+  const debouncedFilters = useDebouncedValue(filters, 400);
+  const activeFiltersCount = useMemo(() => {
+    let count = 0;
+
+    if (searchTerm.trim()) count += 1;
+    if (selectedCategory) count += 1;
+    if (sortBy !== 'name') count += 1;
+    if (priceRange[0] !== 0 || priceRange[1] !== MAX_PRICE) count += 1;
+
+    return count;
+  }, [priceRange, searchTerm, selectedCategory, sortBy]);
+  const resultRangeLabel = useMemo(() => {
+    if (pagination.total === 0) {
+      return 'No products found';
+    }
+
+    const start = (pagination.page - 1) * pagination.limit + 1;
+    const end = Math.min(pagination.page * pagination.limit, pagination.total);
+
+    return `Showing ${start}-${end} of ${pagination.total} products`;
+  }, [pagination]);
+  const paginationWindow = useMemo(() => {
+    if (!pagination.totalPages) {
+      return [];
+    }
+
+    const start = Math.max(1, pagination.page - 2);
+    const end = Math.min(pagination.totalPages, start + 4);
+    const adjustedStart = Math.max(1, end - 4);
+
+    return Array.from({ length: end - adjustedStart + 1 }, (_, index) => adjustedStart + index);
+  }, [pagination.page, pagination.totalPages]);
 
   useEffect(() => {
-    dispatch(fetchProducts({ limit: 20 }));
+    dispatch(fetchProducts(initialFilters.current));
     dispatch(fetchCategories());
   }, [dispatch]);
 
   useEffect(() => {
-    const filters = {
-      search: searchTerm,
-      category: selectedCategory,
-      sortBy,
-      minPrice: priceRange[0],
-      maxPrice: priceRange[1]
-    };
-    
-    dispatch(fetchProducts(filters));
-  }, [searchTerm, selectedCategory, sortBy, priceRange, dispatch]);
+    if (skipFirstDebouncedFetch.current) {
+      skipFirstDebouncedFetch.current = false;
+      return;
+    }
+
+    dispatch(fetchProducts(debouncedFilters));
+  }, [debouncedFilters, dispatch]);
+
+  useEffect(() => {
+    const nextParams = new URLSearchParams();
+
+    if (searchTerm.trim()) nextParams.set('search', searchTerm.trim());
+    if (selectedCategory) nextParams.set('category', selectedCategory);
+    if (sortBy !== 'name') nextParams.set('sort', sortBy);
+    if (priceRange[0] !== 0) nextParams.set('minPrice', String(priceRange[0]));
+    if (priceRange[1] !== MAX_PRICE) nextParams.set('maxPrice', String(priceRange[1]));
+    if (currentPage > 1) nextParams.set('page', String(currentPage));
+
+    setSearchParams(nextParams, { replace: true });
+  }, [currentPage, priceRange, searchTerm, selectedCategory, setSearchParams, sortBy]);
 
   const handleSearch = (term) => {
     setSearchTerm(term);
+    setCurrentPage(1);
   };
 
   const handleCategoryChange = (category) => {
     setSelectedCategory(category);
+    setCurrentPage(1);
   };
 
   const handleSortChange = (sort) => {
     setSortBy(sort);
+    setCurrentPage(1);
   };
 
   const handlePriceRangeChange = (range) => {
     setPriceRange(range);
+    setCurrentPage(1);
   };
 
   const clearFilters = () => {
     setSearchTerm('');
     setSelectedCategory('');
     setSortBy('name');
-    setPriceRange([0, 1000]);
+    setPriceRange([0, MAX_PRICE]);
+    setCurrentPage(1);
+  };
+
+  const handlePageChange = (page) => {
+    if (page < 1 || page > pagination.totalPages || page === currentPage) {
+      return;
+    }
+
+    setCurrentPage(page);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-neutral-50 to-primary-50 dark:from-neutral-900 dark:to-neutral-800">
-      {/* Hero Section */}
-      <section className="relative py-20 bg-gradient-to-r from-brand-primary to-brand-secondary dark:from-dark-interactive-primary dark:to-brand-secondary overflow-hidden">
-        {/* Background Pattern */}
-        <div className="absolute inset-0 bg-black/10 dark:bg-black/20"></div>
-        <div className="absolute inset-0 bg-gradient-to-r from-brand-primary/90 to-brand-secondary/90 dark:from-dark-interactive-primary/90 dark:to-brand-secondary/90"></div>
-        
-        {/* Decorative Elements */}
-        <div className="absolute top-0 left-0 w-full h-full overflow-hidden">
-          <div className="absolute top-10 left-10 w-20 h-20 bg-white/10 rounded-full animate-pulse"></div>
-          <div className="absolute top-20 right-20 w-16 h-16 bg-white/10 rounded-full animate-pulse" style={{ animationDelay: '1s' }}></div>
-          <div className="absolute bottom-20 left-1/4 w-12 h-12 bg-white/10 rounded-full animate-pulse" style={{ animationDelay: '2s' }}></div>
-        </div>
-
-        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center">
-            <h1 className="text-5xl md:text-6xl font-bold text-white mb-6 animate-fade-in">
-              All Products
-            </h1>
-            <p className="text-xl text-white/90 mb-8 max-w-2xl mx-auto animate-fade-in" style={{ animationDelay: '0.2s' }}>
-              Discover our complete collection of amazing products
-            </p>
-            <div className="flex items-center justify-center space-x-4 animate-fade-in" style={{ animationDelay: '0.4s' }}>
-              <div className="flex items-center bg-white/20 backdrop-blur-sm rounded-full px-6 py-3">
-                <svg className="w-5 h-5 text-white mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
-                </svg>
-                <span className="text-white font-semibold">{products.length} products available</span>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
+      <ProductsHero totalProducts={pagination.total} />
 
       {/* Main Content */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
@@ -118,15 +179,34 @@ const Products = () => {
           </div>
         </div>
 
+        <ProductsResultsBar
+          resultRangeLabel={resultRangeLabel}
+          activeFiltersCount={activeFiltersCount}
+          searchTerm={searchTerm}
+          selectedCategory={selectedCategory}
+          priceRange={priceRange}
+          sortBy={sortBy}
+          maxPrice={MAX_PRICE}
+        />
+
         {/* Products Grid */}
         {loading ? (
           <div className="flex justify-center items-center py-20">
             <LoadingSpinner size={60} message="Loading products..." />
           </div>
         ) : (
-          <div className="animate-fade-in">
-            <ProductsGrid products={products} />
-          </div>
+          <>
+            <div className="animate-fade-in">
+              <ProductsGrid products={products} onClearFilters={clearFilters} />
+            </div>
+
+            <ProductsPagination
+              currentPage={currentPage}
+              totalPages={pagination.totalPages}
+              paginationWindow={paginationWindow}
+              onPageChange={handlePageChange}
+            />
+          </>
         )}
       </div>
     </div>

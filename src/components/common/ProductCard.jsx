@@ -11,6 +11,7 @@ import { addToCart } from '../../store/actions/cartActions';
 import { toggleFavorite } from '../../store/actions/favoritesActions';
 import { showToast } from '../../utils/toast';
 import QuickViewModal from './QuickViewModal';
+import SmartImage from './SmartImage';
 
 const ProductCard = ({ product }) => {
   const [showQuickView, setShowQuickView] = useState(false);
@@ -56,10 +57,12 @@ const ProductCard = ({ product }) => {
       {/* Image Container */}
       <div className="relative overflow-hidden">
         <Link to={`/products/${product.id}`}>
-          <img
+          <SmartImage
             src={product.image}
             alt={product.title}
-            className="h-64 w-auto mx-auto object-contain bg-white dark:bg-dark-bg-primary"
+            className="h-64 bg-white dark:bg-dark-bg-primary"
+            imgClassName="h-full w-full object-contain"
+            fallbackLabel="Product image unavailable"
           />
         </Link>
         
@@ -68,17 +71,17 @@ const ProductCard = ({ product }) => {
           <div className="flex space-x-2">
             <button
               onClick={handleQuickView}
-              className="bg-white/90 hover:bg-white text-neutral-900 p-3 rounded-full transition-all duration-300 transform hover:scale-110 shadow-lg"
+              className="flex h-11 w-11 items-center justify-center rounded-full bg-white/90 text-neutral-900 shadow-lg transition-all duration-300 hover:scale-110 hover:bg-white"
               aria-label="Quick view"
             >
-              <VisibilityOutlined sx={{ fontSize: 20 }} />
+              <VisibilityOutlined sx={{ fontSize: 17 }} />
             </button>
             <button
               onClick={handleAddToCart}
-              className="bg-primary-500 hover:bg-primary-600 text-white p-3 rounded-full transition-all duration-300 transform hover:scale-110 shadow-lg"
+              className="flex h-11 w-11 items-center justify-center rounded-full bg-primary-500 text-white shadow-lg transition-all duration-300 hover:scale-110 hover:bg-primary-600"
               aria-label="Add to cart"
             >
-              <ShoppingCartOutlined sx={{ fontSize: 20 }} />
+              <ShoppingCartOutlined sx={{ fontSize: 17 }} />
             </button>
           </div>
         </div>
@@ -93,16 +96,17 @@ const ProductCard = ({ product }) => {
         {/* Wishlist Button */}
         <button 
           onClick={handleToggleFavorite}
-          className={`absolute top-4 right-4 bg-white/80 hover:bg-white p-2 rounded-full transition-all duration-300 opacity-0 group-hover:opacity-100 ${
+          className={`absolute top-4 right-4 flex h-8 w-8 items-center justify-center rounded-full bg-white/80 transition-all duration-300 opacity-0 group-hover:opacity-100 hover:bg-white ${
             isFavorite 
               ? 'text-red-500 hover:text-red-600' 
               : 'text-neutral-600 hover:text-red-500'
           }`}
+          aria-label={isFavorite ? 'Remove from wishlist' : 'Add to wishlist'}
         >
           {isFavorite ? (
-            <FavoriteOutlined sx={{ fontSize: 20 }} />
+            <FavoriteOutlined sx={{ fontSize: 16 }} />
           ) : (
-            <FavoriteBorderOutlined sx={{ fontSize: 20 }} />
+            <FavoriteBorderOutlined sx={{ fontSize: 16 }} />
           )}
         </button>
       </div>

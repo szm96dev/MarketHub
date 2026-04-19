@@ -15,7 +15,7 @@ import { useSelector, useDispatch } from 'react-redux';
 import { logout as logoutAction } from '../../store/actions/authActions';
 import { useTheme } from '../../contexts/ThemeContext';
 
-const Navbar = () => {
+const Navbar = ({ onCartClick }) => {
   const location = useLocation();
   const dispatch = useDispatch();
   const { user, isAuthenticated } = useSelector((state) => state.auth);
@@ -118,9 +118,10 @@ const Navbar = () => {
             </button>
             
             {/* Cart */}
-            <Link
-              to="/cart"
+            <button
+              onClick={onCartClick}
               className="relative p-3 text-text-primary dark:text-dark-text-primary hover:text-brand-primary dark:hover:text-dark-interactive-primary transition-all duration-300 hover:bg-bg-secondary dark:hover:bg-dark-bg-secondary rounded-xl"
+              aria-label="Open mini cart"
             >
               <ShoppingCartOutlined sx={{ fontSize: 24 }} />
               {itemCount > 0 && (
@@ -128,7 +129,7 @@ const Navbar = () => {
                   {itemCount}
                 </span>
               )}
-            </Link>
+            </button>
             
             {/* User Menu */}
             {isAuthenticated ? (

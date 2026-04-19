@@ -2,9 +2,10 @@ import * as Yup from 'yup';
 
 // User Schemas
 export const loginSchema = Yup.object({
-  email: Yup.string()
-    .email('Invalid email address')
-    .required('Email is required'),
+  username: Yup.string()
+    .min(3, 'Username must be at least 3 characters')
+    .max(30, 'Max 30 characters')
+    .required('Username is required'),
   password: Yup.string()
     .min(6, 'Password must be at least 6 characters')
     .required('Password is required'),
@@ -32,6 +33,39 @@ export const profileUpdateSchema = Yup.object({
     number: Yup.string().required('Number is required'),
     zipcode: Yup.string().required('Zipcode is required'),
   }),
+});
+
+export const shippingDetailsSchema = Yup.object({
+  fullName: Yup.string()
+    .min(2, 'Full name must be at least 2 characters')
+    .max(80, 'Full name must be less than 80 characters')
+    .required('Full name is required'),
+  email: Yup.string()
+    .email('Enter a valid email address')
+    .required('Email is required'),
+  phone: Yup.string()
+    .matches(/^[0-9+\-\s()]{7,20}$/, 'Enter a valid phone number')
+    .required('Phone number is required'),
+  street: Yup.string()
+    .min(5, 'Street address must be at least 5 characters')
+    .max(120, 'Street address must be less than 120 characters')
+    .required('Street address is required'),
+  apartment: Yup.string()
+    .max(50, 'Apartment / suite must be less than 50 characters'),
+  city: Yup.string()
+    .min(2, 'City must be at least 2 characters')
+    .max(60, 'City must be less than 60 characters')
+    .required('City is required'),
+  state: Yup.string()
+    .min(2, 'State / region must be at least 2 characters')
+    .max(60, 'State / region must be less than 60 characters')
+    .required('State / region is required'),
+  postalCode: Yup.string()
+    .matches(/^[A-Za-z0-9-\s]{3,12}$/, 'Enter a valid postal code')
+    .required('Postal code is required'),
+  country: Yup.string()
+    .min(2, 'Country must be at least 2 characters')
+    .required('Country is required'),
 });
 
 // Product Schemas
@@ -71,8 +105,8 @@ export const productSchema = Yup.object({
 // Form Initial Values
 export const initialValues = {
   login: {
-    email: '',
-    password: '',
+    username: 'mor_2314',
+    password: '83r5^_',
   },
   register: {
     firstname: '',
@@ -100,6 +134,17 @@ export const initialValues = {
       number: '',
       zipcode: '',
     },
+  },
+  shipping: {
+    fullName: '',
+    email: '',
+    phone: '',
+    street: '',
+    apartment: '',
+    city: '',
+    state: '',
+    postalCode: '',
+    country: 'United States',
   },
   product: {
     name: '',
@@ -133,7 +178,3 @@ export const buildProfileInitialValues = (user) => ({
 });
 
 // Type definitions
-
-
-
-

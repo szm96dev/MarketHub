@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Formik, Form, Field, ErrorMessage } from 'formik';
 import Button from '../common/Button';
 import { loginSchema, initialValues } from '../../schemas';
-import { EmailOutlined, VisibilityOutlined, VisibilityOffOutlined } from '../../icons';
+import { PersonOutlined, VisibilityOutlined, VisibilityOffOutlined } from '../../icons';
 
 const LoginForm = ({ onSubmit, loading, error }) => {
   const [showPassword, setShowPassword] = useState(false);
@@ -20,22 +20,22 @@ const LoginForm = ({ onSubmit, loading, error }) => {
       )}
 
       <div>
-        <label htmlFor="email" className="block text-sm font-semibold text-text-primary dark:text-dark-text-primary mb-3">
-          Email Address
+        <label htmlFor="username" className="block text-sm font-semibold text-text-primary dark:text-dark-text-primary mb-3">
+          Username
         </label>
         <div className="relative">
           <Field
-            id="email"
-            name="email"
-            type="email"
+            id="username"
+            name="username"
+            type="text"
             className="w-full px-4 py-4 bg-bg-secondary dark:bg-dark-bg-secondary border-2 border-border-primary dark:border-dark-border-primary rounded-xl text-text-primary dark:text-dark-text-primary placeholder-text-tertiary dark:placeholder-dark-text-tertiary focus:outline-none focus:ring-2 focus:ring-brand-primary dark:focus:ring-dark-interactive-primary focus:border-brand-primary dark:focus:border-dark-interactive-primary"
-            placeholder="Enter your email"
+            placeholder="Enter your username"
           />
           <div className="absolute inset-y-0 right-0 flex items-center pr-4 text-text-tertiary dark:text-dark-text-tertiary">
-            <EmailOutlined sx={{ fontSize: 20 }} />
+            <PersonOutlined sx={{ fontSize: 20 }} />
           </div>
         </div>
-        <ErrorMessage name="email" component="p" className="mt-1 text-sm text-red-400" />
+        <ErrorMessage name="username" component="p" className="mt-1 text-sm text-red-400" />
       </div>
 
       <div>

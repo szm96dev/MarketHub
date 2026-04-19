@@ -14,16 +14,10 @@ const ProfileForm = ({
 
   return (
     <div className="bg-bg-card dark:bg-dark-bg-card rounded-2xl shadow-lg p-6">
-      <div className="flex items-center justify-between mb-6">
+      <div className="mb-6">
         <h2 className="text-2xl font-semibold text-text-primary dark:text-dark-text-primary">
           Personal Information
         </h2>
-        <button
-          onClick={onEditToggle}
-          className="px-4 py-2 bg-gradient-to-r from-brand-primary to-brand-secondary text-white rounded-xl hover:shadow-lg transition-all duration-300"
-        >
-          {isEditing ? 'Cancel' : 'Edit Profile'}
-        </button>
       </div>
 
       <Formik

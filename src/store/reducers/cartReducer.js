@@ -15,10 +15,11 @@ function calcTotals(items) {
 export default function cartReducer(state = initialState, action) {
   switch (action.type) {
     case CART_ADD: {
+      const nextQuantity = Math.max(1, Number(action.payload.quantity) || 1);
       const existing = state.items.find(i => i.productId === action.payload.productId);
       const items = existing
-        ? state.items.map(i => i.productId === action.payload.productId ? { ...i, quantity: i.quantity + 1 } : i)
-        : [...state.items, { ...action.payload, quantity: 1 }];
+        ? state.items.map(i => i.productId === action.payload.productId ? { ...i, quantity: i.quantity + nextQuantity } : i)
+        : [...state.items, { ...action.payload, quantity: nextQuantity }];
       return { ...state, items, ...calcTotals(items) };
     }
     case CART_REMOVE: {
@@ -39,5 +40,4 @@ export default function cartReducer(state = initialState, action) {
       return state;
   }
 }
-
 

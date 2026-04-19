@@ -1,20 +1,27 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchProductById } from '../store/actions/productsActions';
 import { addToCart } from '../store/actions/cartActions';
 import PageContainer from '../components/common/PageContainer';
-import LoadingSpinner from '../components/common/LoadingSpinner';
 import ProductBreadcrumb from '../components/ProductDetail/ProductBreadcrumb';
 import ProductImages from '../components/ProductDetail/ProductImages';
 import ProductInfo from '../components/ProductDetail/ProductInfo';
 import ProductActions from '../components/ProductDetail/ProductActions';
+import ProductSection from '../components/Home/ProductSection';
+import ProductDetailSkeleton from '../components/ProductDetail/ProductDetailSkeleton';
+import { productService } from '../services/productService';
+import localData from '../utils/localData';
+import { SearchOffOutlined } from '../icons';
 
 const ProductDetail = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const { currentProduct, loading } = useSelector((state) => state.products);
+  const [relatedProducts, setRelatedProducts] = useState([]);
+  const [recentlyViewed, setRecentlyViewed] = useState([]);
+  const [isRelatedLoading, setIsRelatedLoading] = useState(true);
 
   useEffect(() => {
     if (id) {
@@ -22,13 +29,66 @@ const ProductDetail = () => {
     }
   }, [id, dispatch]);
 
-  const handleAddToCart = () => {
+  useEffect(() => {
+    if (!currentProduct) {
+      return;
+    }
+
+    localData.saveRecentlyViewedProduct(currentProduct);
+    setRecentlyViewed(localData.getRecentlyViewedProducts().filter((item) => item.id !== currentProduct.id).slice(0, 4));
+  }, [currentProduct]);
+
+  useEffect(() => {
+    let isMounted = true;
+
+    const loadRelatedProducts = async () => {
+      if (!currentProduct?.category) {
+        return;
+      }
+
+      setIsRelatedLoading(true);
+      try {
+        const response = await productService.getProducts({
+          category: currentProduct.category,
+          sortBy: 'rating',
+          limit: 8,
+        });
+
+        if (!isMounted) {
+          return;
+        }
+
+        setRelatedProducts(response.products.filter((item) => item.id !== currentProduct.id).slice(0, 4));
+      } catch (error) {
+        if (isMounted) {
+          setRelatedProducts([]);
+        }
+      } finally {
+        if (isMounted) {
+          setIsRelatedLoading(false);
+        }
+      }
+    };
+
+    loadRelatedProducts();
+
+    return () => {
+      isMounted = false;
+    };
+  }, [currentProduct]);
+
+  const productImages = useMemo(() => (
+    currentProduct?.image ? [currentProduct.image] : []
+  ), [currentProduct]);
+
+  const handleAddToCart = (quantity = 1) => {
     if (currentProduct) {
       dispatch(addToCart({
         productId: currentProduct.id.toString(),
         productName: currentProduct.title,
         price: currentProduct.price,
-        image: currentProduct.image
+        image: currentProduct.image,
+        quantity,
       }));
     }
   };
@@ -36,7 +96,7 @@ const ProductDetail = () => {
   if (loading) {
     return (
       <PageContainer>
-        <LoadingSpinner size={60} message="Loading product details..." />
+        <ProductDetailSkeleton />
       </PageContainer>
     );
   }
@@ -46,9 +106,7 @@ const ProductDetail = () => {
       <PageContainer>
         <div className="text-center py-12">
           <div className="w-24 h-24 mx-auto mb-6 bg-gray-100 dark:bg-gray-800 rounded-full flex items-center justify-center">
-            <svg className="w-12 h-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.172 16.172a4 4 0 015.656 0M9 12h6m-6-4h6m2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
-            </svg>
+            <SearchOffOutlined sx={{ fontSize: 48 }} className="text-gray-400" />
           </div>
           <h2 className="text-2xl font-bold text-text-primary dark:text-dark-text-primary mb-4">
             Product Not Found
@@ -76,7 +134,7 @@ const ProductDetail = () => {
         />
         
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 mt-8">
-          <ProductImages images={[currentProduct.image]} />
+          <ProductImages images={productImages} productName={currentProduct.title} />
           
           <div className="space-y-6">
             <ProductInfo 
@@ -89,13 +147,33 @@ const ProductDetail = () => {
             
             <ProductActions 
               onAddToCart={handleAddToCart}
-              onBuyNow={() => {
-                handleAddToCart();
+              onBuyNow={(quantity) => {
+                handleAddToCart(quantity);
                 navigate('/cart');
               }}
             />
           </div>
         </div>
+
+        <section className="mt-20">
+          <ProductSection
+            title="Related Products"
+            subtitle="More picks from the same category, selected for similar style and rating."
+            products={relatedProducts}
+            loading={isRelatedLoading}
+            skeletonCount={4}
+          />
+        </section>
+
+        <section className="mt-20">
+          <ProductSection
+            title="Recently Viewed"
+            subtitle="Jump back into products you explored earlier."
+            products={recentlyViewed}
+            loading={false}
+            skeletonCount={4}
+          />
+        </section>
       </div>
     </PageContainer>
   );

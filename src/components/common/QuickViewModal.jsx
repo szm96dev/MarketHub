@@ -9,6 +9,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { addToCart } from '../../store/actions/cartActions';
 import { toggleFavorite } from '../../store/actions/favoritesActions';
 import { showToast } from '../../utils/toast';
+import SmartImage from './SmartImage';
 
 const QuickViewModal = ({ product, isOpen, onClose }) => {
   const dispatch = useDispatch();
@@ -43,7 +44,7 @@ const QuickViewModal = ({ product, isOpen, onClose }) => {
           </h2>
           <button
             onClick={onClose}
-            className="text-text-secondary dark:text-dark-text-secondary hover:text-text-primary dark:hover:text-dark-text-primary transition-colors"
+            className="flex h-10 w-10 items-center justify-center rounded-full bg-bg-secondary text-text-secondary transition-colors hover:bg-bg-tertiary hover:text-text-primary dark:bg-dark-bg-secondary dark:text-dark-text-secondary dark:hover:bg-dark-bg-tertiary dark:hover:text-dark-text-primary"
           >
             <CloseOutlined sx={{ fontSize: 24 }} />
           </button>
@@ -55,10 +56,12 @@ const QuickViewModal = ({ product, isOpen, onClose }) => {
             {/* Product Image */}
             <div className="space-y-4">
               <div className="relative overflow-hidden rounded-xl">
-                <img
+                <SmartImage
                   src={product.image}
                   alt={product.title}
-                  className="h-96 w-auto mx-auto object-contain bg-white dark:bg-dark-bg-primary"
+                  className="h-96 bg-white dark:bg-dark-bg-primary"
+                  imgClassName="h-full w-full object-contain"
+                  fallbackLabel="Product preview unavailable"
                 />
                 <div className="absolute top-4 left-4">
                   <span className="bg-green-500 text-white text-xs font-bold px-3 py-1 rounded-full shadow-lg">
@@ -138,11 +141,12 @@ const QuickViewModal = ({ product, isOpen, onClose }) => {
                 </button>
                 <button 
                   onClick={handleToggleFavorite}
-                  className={`font-bold py-4 px-6 rounded-xl transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 hover:scale-105 ${
+                  className={`flex h-14 w-14 items-center justify-center rounded-full transition-all duration-300 shadow-lg hover:-translate-y-0.5 hover:scale-105 hover:shadow-xl ${
                     isFavorite
                       ? 'bg-red-500 hover:bg-red-600 text-white'
                       : 'bg-bg-secondary dark:bg-dark-bg-secondary hover:bg-bg-tertiary dark:hover:bg-dark-bg-tertiary text-text-primary dark:text-dark-text-primary'
                   }`}
+                  aria-label={isFavorite ? 'Remove from wishlist' : 'Add to wishlist'}
                 >
                   {isFavorite ? (
                     <FavoriteOutlined sx={{ fontSize: 20 }} />

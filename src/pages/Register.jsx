@@ -17,7 +17,7 @@ const Register = () => {
     try {
       setError('');
       await dispatch(register(values));
-      navigate('/');
+      navigate('/login');
     } catch (err) {
       setError(err.message);
     }

@@ -8,6 +8,11 @@ const ProductsSearch = ({
 }) => {
   const [localSearchTerm, setLocalSearchTerm] = useState(searchTerm);
 
+  const handleChange = useCallback((value) => {
+    setLocalSearchTerm(value);
+    onSearchTermChange(value);
+  }, [onSearchTermChange]);
+
   const handleSubmit = useCallback((e) => {
     e.preventDefault();
     onSearchTermChange(localSearchTerm);
@@ -17,12 +22,11 @@ const ProductsSearch = ({
   }, [localSearchTerm, onSearch, onSearchTermChange]);
 
   const handleClear = useCallback(() => {
-    setLocalSearchTerm('');
-    onSearchTermChange('');
+    handleChange('');
     if (onSearch) {
       onSearch('');
     }
-  }, [onSearch, onSearchTermChange]);
+  }, [handleChange, onSearch]);
 
   useEffect(() => {
     setLocalSearchTerm(searchTerm);
@@ -38,7 +42,7 @@ const ProductsSearch = ({
             <input
               type="text"
               value={localSearchTerm}
-              onChange={(e) => setLocalSearchTerm(e.target.value)}
+              onChange={(e) => handleChange(e.target.value)}
               placeholder="Search for products, brands, and more..."
               className="w-full px-6 py-4 pl-14 pr-4 border border-border-primary dark:border-dark-border-primary rounded-2xl bg-bg-secondary dark:bg-dark-bg-secondary text-text-primary dark:text-dark-text-primary placeholder-text-tertiary dark:placeholder-dark-text-tertiary focus:outline-none focus:ring-2 focus:ring-brand-primary dark:focus:ring-dark-interactive-primary focus:border-transparent transition-all duration-300 shadow-sm hover:shadow-md"
             />

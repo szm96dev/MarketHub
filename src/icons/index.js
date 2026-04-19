@@ -33,4 +33,12 @@ export { default as FilterListOutlined } from '@mui/icons-material/FilterListOut
 export { default as CloseOutlined } from '@mui/icons-material/CloseOutlined';
 export { default as AddOutlined } from '@mui/icons-material/AddOutlined';
 export { default as RemoveOutlined } from '@mui/icons-material/RemoveOutlined';
-
+export { default as Inventory2Outlined } from '@mui/icons-material/Inventory2Outlined';
+export { default as LocalShippingOutlined } from '@mui/icons-material/LocalShippingOutlined';
+export { default as AccessTimeOutlined } from '@mui/icons-material/AccessTimeOutlined';
+export { default as SearchOffOutlined } from '@mui/icons-material/SearchOffOutlined';
+export { default as DeleteOutlineOutlined } from '@mui/icons-material/DeleteOutlineOutlined';
+export { default as ArrowBackOutlined } from '@mui/icons-material/ArrowBackOutlined';
+export { default as BoltOutlined } from '@mui/icons-material/BoltOutlined';
+export { default as ReportProblemOutlined } from '@mui/icons-material/ReportProblemOutlined';
+export { default as RestartAltOutlined } from '@mui/icons-material/RestartAltOutlined';

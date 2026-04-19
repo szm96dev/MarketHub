@@ -4,6 +4,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { clearFavorites } from '../store/actions/favoritesActions';
 import PageContainer from '../components/common/PageContainer';
 import ProductCard from '../components/common/ProductCard';
+import { DeleteOutlineOutlined, FavoriteBorderOutlined, SearchOutlined } from '../icons';
 
 const Favorites = () => {
   const dispatch = useDispatch();
@@ -17,9 +18,7 @@ const Favorites = () => {
             {/* Empty State */}
             <div className="text-center py-20">
               <div className="w-32 h-32 mx-auto mb-8 bg-gradient-to-br from-brand-primary/10 to-brand-secondary/10 dark:from-brand-primary/20 dark:to-brand-secondary/20 rounded-full flex items-center justify-center">
-                <svg className="w-16 h-16 text-brand-primary dark:text-dark-interactive-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
-                </svg>
+                <FavoriteBorderOutlined sx={{ fontSize: 64 }} className="text-brand-primary dark:text-dark-interactive-primary" />
               </div>
               <h2 className="text-3xl font-bold text-text-primary dark:text-dark-text-primary mb-4">
                 No Favorites Yet
@@ -31,9 +30,7 @@ const Favorites = () => {
                 to="/products"
                 className="inline-flex items-center px-8 py-4 bg-gradient-to-r from-brand-primary to-brand-secondary hover:from-interactive-primary-hover hover:to-brand-secondary text-white font-bold rounded-xl transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 hover:scale-105"
               >
-                <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                </svg>
+                <SearchOutlined sx={{ fontSize: 20, mr: 1 }} />
                 Browse Products
               </Link>
             </div>
@@ -62,9 +59,7 @@ const Favorites = () => {
                 onClick={() => dispatch(clearFavorites())}
                 className="px-6 py-3 border border-border-primary dark:border-dark-border-primary text-text-secondary dark:text-dark-text-secondary hover:bg-bg-secondary dark:hover:bg-dark-bg-secondary font-medium rounded-xl transition-all duration-300 hover:scale-105 flex items-center"
               >
-                <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                </svg>
+                <DeleteOutlineOutlined sx={{ fontSize: 16, mr: 1 }} />
                 Clear All
               </button>
             </div>
@@ -90,9 +85,7 @@ const Favorites = () => {
                 to="/products"
                 className="inline-flex items-center px-6 py-3 bg-gradient-to-r from-brand-primary to-brand-secondary hover:from-interactive-primary-hover hover:to-brand-secondary text-white font-semibold rounded-xl transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 hover:scale-105"
               >
-                <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                </svg>
+                <SearchOutlined sx={{ fontSize: 20, mr: 1 }} />
                 Browse All Products
               </Link>
             </div>

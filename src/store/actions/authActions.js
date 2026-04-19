@@ -46,7 +46,7 @@ export const register = (userData) => async (dispatch) => {
   dispatch(setLoading(true));
   try {
     const response = await authService.register(userData);
-    dispatch(registerSuccess(response.user, response.token));
+    dispatch(setLoading(false));
     showToast.success(response.message);
     return response;
   } catch (error) {

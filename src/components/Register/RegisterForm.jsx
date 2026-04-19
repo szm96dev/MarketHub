@@ -9,16 +9,12 @@ const RegisterForm = ({ onSubmit, loading, error }) => {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
   const onFormSubmit = (values) => {
-    onSubmit(values)
-
-    console.log("values")
+    onSubmit(values);
   };
 
   return (
     <Formik initialValues={initialValues.register} validationSchema={registerSchema} onSubmit={onFormSubmit}>
-      {({ errors }) => {
-
-        console.log(errors)
+      {() => {
         return (
           <Form className="space-y-8">
             {error && (
@@ -203,7 +199,7 @@ const RegisterForm = ({ onSubmit, loading, error }) => {
               Create Account
             </Button>
           </Form>
-        )
+        );
       }}
     </Formik>
   );

@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import SmartImage from '../common/SmartImage';
 
 const ProductImages = ({ 
   images = [], 
@@ -21,11 +22,12 @@ const ProductImages = ({
     <div className="space-y-4">
       {/* Main Image */}
       <div className="relative group overflow-hidden rounded-2xl bg-white dark:bg-dark-bg-primary flex items-center justify-center">
-        <img
+        <SmartImage
           src={images[selectedImage] || '/placeholder.jpg'}
           alt={productName}
-          className="max-h-96 lg:max-h-[500px] w-auto object-contain"
-          loading="lazy"
+          className="w-full"
+          imgClassName="max-h-96 lg:max-h-[500px] w-full object-contain"
+          fallbackLabel="Product image unavailable"
         />
         
         <div className="absolute top-4 right-4">
@@ -55,11 +57,12 @@ const ProductImages = ({
                   : 'hover:ring-2 hover:ring-gray-300 dark:hover:ring-gray-600'
               }`}
             >
-              <img
+              <SmartImage
                 src={image}
                 alt={`${productName} ${index + 1}`}
-                className="max-h-20 w-auto mx-auto object-contain bg-white dark:bg-dark-bg-primary"
-                loading="lazy"
+                className="h-20 bg-white dark:bg-dark-bg-primary"
+                imgClassName="h-full w-full object-contain"
+                fallbackLabel="Preview unavailable"
               />
             </button>
           ))}

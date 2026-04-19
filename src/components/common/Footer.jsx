@@ -15,7 +15,7 @@ const Footer = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Main Footer Content */}
         <div className="py-16">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 lg:gap-12">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 lg:gap-12">
           {/* Company Info */}
             <div className="lg:col-span-2">
               <div className="flex items-center space-x-3 mb-6">
@@ -93,62 +93,6 @@ const Footer = () => {
                   </Link>
                 </li>
               </ul>
-            </div>
-
-          {/* Support */}
-            <div>
-              <h4 className="text-lg font-bold text-text-primary dark:text-dark-text-primary mb-6">
-                Support
-              </h4>
-              <ul className="space-y-3">
-                <li>
-                  <button
-                    onClick={() => {}}
-                    className="text-text-secondary dark:text-dark-text-secondary hover:text-brand-primary dark:hover:text-dark-interactive-primary transition-colors duration-300 flex items-center group"
-                  >
-                    <ArrowForwardIosOutlined sx={{ fontSize: 16, mr: 1 }} />
-                    Help Center
-                  </button>
-                </li>
-                <li>
-                  <button
-                    onClick={() => {}}
-                    className="text-text-secondary dark:text-dark-text-secondary hover:text-brand-primary dark:hover:text-dark-interactive-primary transition-colors duration-300 flex items-center group"
-                  >
-                    <ArrowForwardIosOutlined sx={{ fontSize: 16, mr: 1 }} />
-                    Contact Us
-                  </button>
-                </li>
-                <li>
-                  <button
-                    onClick={() => {}}
-                    className="text-text-secondary dark:text-dark-text-secondary hover:text-brand-primary dark:hover:text-dark-interactive-primary transition-colors duration-300 flex items-center group"
-                  >
-                    <ArrowForwardIosOutlined sx={{ fontSize: 16, mr: 1 }} />
-                    Terms & Privacy
-                  </button>
-                </li>
-              </ul>
-            </div>
-          </div>
-
-          {/* Newsletter Section */}
-          <div className="border-t border-border-primary dark:border-dark-border-primary py-8">
-            <div className="flex flex-col md:flex-row items-center justify-between">
-              <div className="mb-4 md:mb-0">
-                <h3 className="text-xl font-bold text-text-primary dark:text-dark-text-primary mb-2">Stay Updated</h3>
-                <p className="text-text-secondary dark:text-dark-text-secondary">Get the latest products and deals delivered to your inbox.</p>
-              </div>
-              <div className="flex w-full md:w-auto">
-                <input
-                  type="email"
-                  placeholder="Enter your email"
-                  className="flex-1 md:w-80 px-4 py-3 bg-bg-primary dark:bg-dark-bg-primary border border-border-primary dark:border-dark-border-primary rounded-l-xl text-text-primary dark:text-dark-text-primary placeholder-text-tertiary dark:placeholder-dark-text-tertiary focus:outline-none focus:ring-2 focus:ring-brand-primary dark:focus:ring-dark-interactive-primary focus:border-transparent"
-                />
-                <button className="bg-gradient-to-r from-brand-primary to-brand-secondary hover:from-interactive-primary-hover hover:to-brand-secondary text-white font-bold px-6 py-3 rounded-r-xl transition-all duration-300 hover:shadow-lg">
-                  Subscribe
-                </button>
-              </div>
             </div>
           </div>
 

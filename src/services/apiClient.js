@@ -31,8 +31,8 @@ apiClient.interceptors.response.use(
   (error) => {
     if (error.response?.status === 401) {
       const url = error.config?.url || '';
-      const isAuthAttempt = url.includes('/api/auth/');
-      const isProfileAttempt = url.includes('/api/users/profile');
+      const isAuthAttempt = url.includes('/auth/login') || url.includes('/users');
+      const isProfileAttempt = /^\/users\/[^/]+$/.test(url);
       const hasToken = localStorage.getItem('token');
       
       // Only redirect if:

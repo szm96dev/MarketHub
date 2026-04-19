@@ -1,39 +1,29 @@
 import React from 'react';
+import {
+  AccessTimeOutlined,
+  CheckCircleOutlined,
+  LocalShippingOutlined,
+} from '../../icons';
 
 const TrustStrip = ({ badges = [] }) => {
   const defaultBadges = [
     {
       icon: (
-        <svg className="w-8 h-8 text-status-success dark:text-dark-status-success" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-        </svg>
+        <CheckCircleOutlined sx={{ fontSize: 32 }} className="text-status-success dark:text-dark-status-success" />
       ),
       text: "Secure Checkout",
       description: "SSL encrypted payments"
     },
     {
       icon: (
-        <svg className="w-8 h-8 text-brand-primary dark:text-dark-interactive-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
-        </svg>
+        <LocalShippingOutlined sx={{ fontSize: 32 }} className="text-brand-primary dark:text-dark-interactive-primary" />
       ),
       text: "Free Shipping",
       description: "On orders over $50"
     },
     {
       icon: (
-        <svg className="w-8 h-8 text-brand-secondary dark:text-dark-interactive-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
-        </svg>
-      ),
-      text: "24/7 Support",
-      description: "Always here to help"
-    },
-    {
-      icon: (
-        <svg className="w-8 h-8 text-status-warning dark:text-dark-status-warning" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-        </svg>
+        <AccessTimeOutlined sx={{ fontSize: 32 }} className="text-status-warning dark:text-dark-status-warning" />
       ),
       text: "Fast Delivery",
       description: "Same day shipping"

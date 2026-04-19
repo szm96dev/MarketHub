@@ -1,5 +1,26 @@
 import apiClient from './apiClient';
 
+const sortProducts = (products, sortBy) => {
+  const sortedProducts = [...products];
+
+  switch (sortBy) {
+    case 'name':
+      return sortedProducts.sort((a, b) => a.title.localeCompare(b.title));
+    case 'name-desc':
+      return sortedProducts.sort((a, b) => b.title.localeCompare(a.title));
+    case 'price':
+      return sortedProducts.sort((a, b) => a.price - b.price);
+    case 'price-desc':
+      return sortedProducts.sort((a, b) => b.price - a.price);
+    case 'rating':
+      return sortedProducts.sort((a, b) => (b.rating?.rate || 0) - (a.rating?.rate || 0));
+    case 'newest':
+      return sortedProducts.sort((a, b) => (b.id || 0) - (a.id || 0));
+    default:
+      return sortedProducts;
+  }
+};
+
 export const productService = {
   async getProducts(filters = {}) {
     try {
@@ -26,6 +47,10 @@ export const productService = {
       
       if (filters.maxPrice !== undefined) {
         products = products.filter(product => product.price <= filters.maxPrice);
+      }
+
+      if (filters.sortBy) {
+        products = sortProducts(products, filters.sortBy);
       }
       
       // Pagination
@@ -93,6 +118,10 @@ export const productService = {
       if (filters.maxPrice !== undefined) {
         products = products.filter(product => product.price <= filters.maxPrice);
       }
+
+      if (filters.sortBy) {
+        products = sortProducts(products, filters.sortBy);
+      }
       
       // Pagination
       const page = filters.page || 1;
@@ -140,6 +169,10 @@ export const productService = {
       
       if (filters.maxPrice !== undefined) {
         products = products.filter(product => product.price <= filters.maxPrice);
+      }
+
+      if (filters.sortBy) {
+        products = sortProducts(products, filters.sortBy);
       }
       
       // Pagination

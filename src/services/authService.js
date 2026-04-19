@@ -9,7 +9,7 @@ export const login = async (credentials) => {
     try {
         // Use Fake Store API authentication endpoint
         const response = await apiClient.post('/auth/login', {
-            username: credentials.email,
+            username: credentials.username,
             password: credentials.password
         });
 
@@ -19,8 +19,11 @@ export const login = async (credentials) => {
         const userResponse = await apiClient.get('/users');
         const users = userResponse.data;
         
-        // Find user by email (since Fake Store API doesn't have direct user lookup by token)
-        const user = users.find((u) => u.email === credentials.email) || users[0];
+        // Find user by the same username used for authentication
+        const user = users.find((u) => u.username === credentials.username);
+        if (!user) {
+            throw new Error('Authenticated user profile not found.');
+        }
         
         const token = authData.token || 'fake-store-token-' + Date.now();
         localStorage.setItem('token', token);
@@ -62,14 +65,9 @@ export const register = async (userData) => {
 
         const response = await apiClient.post('/users', newUser);
         const createdUser = response.data;
-        const token = 'fake-store-token-' + Date.now();
-        
-        localStorage.setItem('token', token);
-        localStorage.setItem('user', JSON.stringify(createdUser));
         
         return {
-            message: 'Registration successful',
-            token: token,
+            message: 'Registration successful. Please sign in to continue.',
             user: createdUser
         };
     } catch (error) {

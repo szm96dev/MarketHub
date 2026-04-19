@@ -12,14 +12,15 @@ const ProductActions = ({ onAddToCart, onBuyNow }) => {
 
   const handleAddToCart = () => {
     if (onAddToCart) {
-      onAddToCart();
+      onAddToCart(quantity);
     } else {
       // Default behavior if no onAddToCart prop
       dispatch(addToCart({
         productId: 'default',
         productName: 'Product',
         price: 0,
-        image: ''
+        image: '',
+        quantity,
       }));
     }
     showToast.success('Product added to cart!');
@@ -27,7 +28,7 @@ const ProductActions = ({ onAddToCart, onBuyNow }) => {
 
   const handleBuyNow = () => {
     if (onBuyNow) {
-      onBuyNow();
+      onBuyNow(quantity);
     } else {
       // Default behavior
       navigate('/cart');

@@ -18,6 +18,7 @@ const Checkout = lazy(() => import('./pages/Checkout'));
 const Login = lazy(() => import('./pages/Login'));
 const Register = lazy(() => import('./pages/Register'));
 const Favorites = lazy(() => import('./pages/Favorites'));
+const Profile = lazy(() => import('./pages/Profile'));
 const NotFound = lazy(() => import('./pages/NotFound'));
 
 function App() {
@@ -65,6 +66,14 @@ function App() {
                       <Favorites />
                     </ProtectedRouteComponent>
                   } 
+                />
+                <Route
+                  path="/profile"
+                  element={
+                    <ProtectedRouteComponent>
+                      <Profile />
+                    </ProtectedRouteComponent>
+                  }
                 />
                 <Route path="*" element={<NotFound />} />
               </Routes>

@@ -1,7 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import ProductCard from '../common/ProductCard';
-import LoadingSpinner from '../common/LoadingSpinner';
+import ProductCardSkeleton from '../common/ProductCardSkeleton';
 
 const ProductSection = ({ 
   products = [], 
@@ -9,12 +9,17 @@ const ProductSection = ({
   title = "Featured Products",
   subtitle = "Discover our handpicked selection",
   showViewAll = false,
-  viewAllLink = "/products"
+  viewAllLink = "/products",
+  skeletonCount = 4,
 }) => {
   if (loading) {
     return (
-      <div className="flex justify-center items-center py-16">
-        <LoadingSpinner size={60} message="Loading products..." />
+      <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 lg:gap-8">
+        {Array.from({ length: skeletonCount }).map((_, index) => (
+          <div key={index} className="animate-fade-in" style={{ animationDelay: `${index * 0.08}s` }}>
+            <ProductCardSkeleton />
+          </div>
+        ))}
       </div>
     );
   }

@@ -1,21 +1,56 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchProducts, fetchCategories } from '../store/actions/productsActions';
 import HeroCarousel from '../components/Home/HeroCarousel';
 import TrustStrip from '../components/Home/TrustStrip';
 import ProductSection from '../components/Home/ProductSection';
 import CategorySection from '../components/Home/CategorySection';
-import NewsletterSection from '../components/Home/NewsletterSection';
+import localData from '../utils/localData';
+import { userService } from '../services/userService';
 
 const Home = () => {
   const dispatch = useDispatch();
-  const { products, categories, loading } = useSelector((state) => state.products);
+  const { products, categories, loading, pagination } = useSelector((state) => state.products);
+  const recentlyViewed = useMemo(() => localData.getRecentlyViewedProducts().slice(0, 4), []);
+  const [customerCount, setCustomerCount] = useState(0);
 
   useEffect(() => {
     // Fetch initial data
     dispatch(fetchProducts({ limit: 24 }));
     dispatch(fetchCategories());
   }, [dispatch]);
+
+  useEffect(() => {
+    let isMounted = true;
+
+    const loadCustomerCount = async () => {
+      try {
+        const response = await userService.getUsers({ limit: 100 });
+        if (isMounted) {
+          setCustomerCount(response.pagination.total);
+        }
+      } catch (error) {
+        if (isMounted) {
+          setCustomerCount(0);
+        }
+      }
+    };
+
+    loadCustomerCount();
+
+    return () => {
+      isMounted = false;
+    };
+  }, []);
+
+  const satisfactionScore = useMemo(() => {
+    if (!products.length) {
+      return 0;
+    }
+
+    const averageRating = products.reduce((sum, product) => sum + (product.rating?.rate || 0), 0) / products.length;
+    return Math.round((averageRating / 5) * 100);
+  }, [products]);
 
   // Enhanced hero slides with modern design
   const heroSlides = [
@@ -88,13 +123,27 @@ const Home = () => {
         </div>
       </section>
 
+      {recentlyViewed.length > 0 && (
+        <section className="py-16 bg-bg-primary dark:bg-dark-bg-primary">
+          <div className="container mx-auto px-4">
+            <ProductSection
+              title="Recently Viewed"
+              subtitle="Pick up where you left off with products you explored recently."
+              products={recentlyViewed}
+              showViewAll={true}
+              viewAllLink="/products"
+            />
+          </div>
+        </section>
+      )}
+
       {/* Stats Section */}
       <section className="py-16 bg-bg-primary dark:bg-dark-bg-primary">
         <div className="container mx-auto px-4">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8 text-center">
             <div className="animate-fade-in">
               <div className="text-4xl font-bold text-brand-primary dark:text-dark-interactive-primary mb-2">
-                10K+
+                {customerCount || '--'}
               </div>
               <div className="text-text-secondary dark:text-dark-text-secondary">
                 Happy Customers
@@ -102,7 +151,7 @@ const Home = () => {
             </div>
             <div className="animate-fade-in" style={{ animationDelay: '0.2s' }}>
               <div className="text-4xl font-bold text-brand-primary dark:text-dark-interactive-primary mb-2">
-                50K+
+                {pagination.total || products.length || '--'}
               </div>
               <div className="text-text-secondary dark:text-dark-text-secondary">
                 Products Available
@@ -110,7 +159,7 @@ const Home = () => {
             </div>
             <div className="animate-fade-in" style={{ animationDelay: '0.4s' }}>
               <div className="text-4xl font-bold text-brand-primary dark:text-dark-interactive-primary mb-2">
-                99%
+                {satisfactionScore ? `${satisfactionScore}%` : '--'}
               </div>
               <div className="text-text-secondary dark:text-dark-text-secondary">
                 Customer Satisfaction
@@ -118,11 +167,6 @@ const Home = () => {
             </div>
           </div>
         </div>
-      </section>
-      
-      {/* Newsletter Section */}
-      <section className="py-16 bg-gradient-to-r from-brand-primary to-brand-secondary">
-        <NewsletterSection />
       </section>
     </div>
   );

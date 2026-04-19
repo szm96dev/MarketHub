@@ -1,8 +1,12 @@
-import React from 'react';
-import App from './App';
+import { render, screen } from '@testing-library/react';
+import ErrorBoundary from './components/common/ErrorBoundary';
 
-test('renders learn react link', () => {
-  render();
-  const linkElement = screen.getByText(/learn react/i);
-  expect(linkElement).toBeInTheDocument();
+test('renders children inside the error boundary', () => {
+  render(
+    <ErrorBoundary>
+      <div>MarketHub test content</div>
+    </ErrorBoundary>
+  );
+
+  expect(screen.getByText('MarketHub test content')).toBeInTheDocument();
 });

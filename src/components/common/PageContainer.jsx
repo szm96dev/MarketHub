@@ -14,7 +14,7 @@ const PageContainer = ({
   };
 
   return (
-    <div className={`min-h-screen bg-bg-primary dark:bg-dark-bg-primary py-8 ${className}`}>
+    <div className={`min-h-screen bg-bg-primary dark:bg-dark-bg-primary pt-28 sm:pt-32 pb-8 ${className}`}>
       <div className={`mx-auto px-4 sm:px-6 lg:px-8 ${maxWidthClasses[maxWidth]}`}>
         {children}
       </div>
